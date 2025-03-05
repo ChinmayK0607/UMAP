@@ -1,0 +1,7 @@
+streamlit
+pandas
+joblib
+streamlit-plotly-events
+plotly
+umap-learn
+matplotlib 
