@@ -1,28 +1,45 @@
+import os
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import joblib
 from streamlit_plotly_events import plotly_events
+import gdown
 
 st.title("Math Questions Visualization")
 
-# Load the UMAP reducer if needed (e.g., for transforming new data)
-umap_model_path = "umap_model.pkl"
+# --- Download UMAP folder from Google Drive if not already present ---
+umap_folder = "UMAP"
+if not os.path.exists(umap_folder):
+    st.info("Downloading UMAP folder from Google Drive...")
+    # Folder URL from Google Drive
+    folder_url = "https://drive.google.com/drive/folders/1mYhDf8NTKZhMd0KAQmH3h-941xueKrKF?usp=sharing"
+    try:
+        # Download the entire folder using gdown
+        gdown.download_folder(url=folder_url, output=umap_folder, use_cookies=False)
+        st.success("UMAP folder downloaded successfully.")
+    except Exception as e:
+        st.error(f"Error downloading folder: {e}")
+
+# Update file paths
+umap_model_path = os.path.join(umap_folder, "umap_model.pkl")
+data_path = os.path.join(umap_folder, "embedded_data.csv")
+
+# --- Load the UMAP reducer ---
 try:
     umap_reducer = joblib.load(umap_model_path)
     st.success("Loaded UMAP model successfully.")
 except Exception as e:
     st.error(f"Error loading UMAP model: {e}")
 
-# Load the embedding data with chapters, topics, and questions
-data_path = "embedded_data.csv"
+# --- Load the embedding data ---
 try:
     df_embedded = pd.read_csv(data_path)
     st.success("Loaded embedded data successfully.")
 except Exception as e:
     st.error(f"Error loading embedded data: {e}")
 
-# Create a 3D scatter plot using Plotly Express
+# --- Create a multicolored 3D scatter plot ---
 fig = px.scatter_3d(
     df_embedded,
     x="x",
